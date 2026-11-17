@@ -119,7 +119,7 @@ function exCard(s, it) {
   const done = d.sets.length && d.sets.every(x => x.done);
   return `<div class="card ex ${done ? 'done' : ''}" id="c-${id}">${head}
     ${prev ? `<div class="prev">Prošli put (${fmtD(prev.start)}): ${esc(setsTxt(prevSets))}${prev.ex[id].rir != null ? ' · rezerva ' + rirTxt(prev.ex[id].rir) : ''}</div>` : '<div class="prev">Prvi put – izaberi kilažu tako da u zadnjoj seriji ostanu najviše 2 ponavljanja u rezervi.</div>'}
-    ${e.bar ? `<div class="xs mut">Kilaža ukupno, sa šipkom${id === 'upright' ? ' (EZ šipka obično 7–10 kg)' : ' (šipka obično 20 kg)'}. Možeš da kucaš i <b>2*20+20</b> (tegovi + šipka) – sama izračuna.</div>` : e.bw ? '' : '<div class="xs mut">Bučice: kilaža jedne bučice.</div>'}
+    ${e.bar ? `<div class="xs mut">Kilaža ukupno, sa šipkom${id === 'upright' ? ' (EZ šipka obično 7–10 kg)' : ' (šipka obično 20 kg)'}. Možeš da kucaš i <b>2*20 20</b> (tegovi i šipka) – sama sabere u 60.</div>` : e.bw ? '' : '<div class="xs mut">Bučice: kilaža jedne bučice.</div>'}
     <div class="sets">${rows}</div>
     <div class="rir">Rezerva u zadnjoj seriji:${[0, 1, 2, 3].map(r => `<button class="${d.rir === r ? 'on' : ''}" data-a="rir" data-e="${id}" data-r="${r}">${r === 3 ? '3+' : r}</button>`).join('')}</div>
     ${d.rir === 3 ? '<div class="xs" style="color:var(--acc2);margin-top:6px">Ostalo ti je više od 2 – sledeći put stavi malo više kila.</div>' : ''}
@@ -385,10 +385,10 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const t = e.target;
-  if (t.dataset.f === 'set' && t.dataset.k === 'kg' && /[x×*+]/i.test(t.value)) {
+  if (t.dataset.f === 'set' && t.dataset.k === 'kg' && /[x×*+\s]/i.test(t.value.trim())) {
     // "2x20+20" -> 60
     let tot = 0, ok = true;
-    for (const term of t.value.replace(/\s/g, '').split('+')) {
+    for (const term of t.value.trim().replace(/\s*([x×*])\s*/gi, '$1').split(/[+\s]+/)) {
       if (!term) continue;
       const f = term.split(/[x×*]/i).map(num);
       if (f.some(v => v == null)) { ok = false; break; }
