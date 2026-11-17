@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="sr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>MarkFit</title>
+<meta name="description" content="Plan treninga, upis kilaža i serija, napredak, ishrana i nedeljni izveštaj za trenera.">
+<meta name="theme-color" content="#111418">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#111418;--card:#1b2027;--card2:#232a33;--line:#2e3742;--tx:#eef1f4;--mut:#93a0ae;--acc:#ff7a1a;--acc2:#ffb27a;--ok:#2ec27e;--bad:#ff5d5d;--r:14px}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){--bg:#f3f4f6;--card:#fff;--card2:#eef0f3;--line:#d9dde3;--tx:#14181d;--mut:#5d6874;--acc:#e5630a;--acc2:#b44b00}}
+:root[data-theme="light"]{--bg:#f3f4f6;--card:#fff;--card2:#eef0f3;--line:#d9dde3;--tx:#14181d;--mut:#5d6874;--acc:#e5630a;--acc2:#b44b00}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body{padding-bottom:calc(150px + env(safe-area-inset-bottom))}
+header{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:8px;padding:12px 16px 8px;border-bottom:1px solid var(--line)}
+header h1{font-size:20px;margin:0;flex:1}
+header h1 span{color:var(--acc)}
+main{padding:12px 16px;max-width:720px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:6;display:flex;background:var(--card);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;background:none;border:0;color:var(--mut);padding:8px 0 10px;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px}
+nav button b{font-size:21px;font-weight:400}
+nav button.on{color:var(--acc)}
+button{font:inherit;color:inherit;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;margin:0 0 12px}
+.btn{background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.btn.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.btn.big{width:100%;padding:14px;font-size:17px}
+.btn.sm{padding:6px 10px;font-size:14px}
+.btn.dan{color:var(--bad)}
+.icon{background:none;border:0;font-size:22px;padding:4px 6px;color:var(--mut)}
+h2{font-size:18px;margin:18px 0 10px}
+h3{font-size:16px;margin:0}
+.mut{color:var(--mut)}.sm{font-size:14px}.xs{font-size:12px}
+.row{display:flex;gap:8px;align-items:center}.grow{flex:1;min-width:0}
+.chip{display:inline-block;background:var(--card2);border-radius:20px;padding:2px 9px;font-size:13px;color:var(--mut);margin:2px 4px 2px 0}
+.chip.acc{color:var(--acc2);background:color-mix(in srgb,var(--acc) 16%,transparent)}
+.chip.ok{color:var(--ok)}
+input,textarea,select{font:inherit;color:var(--tx);background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:9px 10px;width:100%}
+input:focus,textarea:focus{outline:2px solid var(--acc);border-color:transparent}
+textarea{min-height:70px;resize:vertical}
+label.f{display:block;font-size:13px;color:var(--mut);margin:8px 0 4px}
+.info{background:color-mix(in srgb,var(--acc) 10%,var(--card));border-color:color-mix(in srgb,var(--acc) 35%,var(--line))}
+.info ul{margin:6px 0 0;padding-left:18px}.info li{margin:4px 0;font-size:14px}
+/* day cards */
+.day{display:flex;align-items:center;gap:10px}
+.day .badge{width:46px;height:46px;border-radius:12px;background:var(--card2);display:grid;place-items:center;font-weight:700;color:var(--acc);font-size:18px}
+.list{margin:10px 0 0;padding:0;list-style:none}
+.list li{display:flex;gap:10px;align-items:center;padding:7px 0;border-top:1px solid var(--line);cursor:pointer}
+.list li img,.list li .ic{width:46px;height:34px;object-fit:cover;border-radius:6px;background:var(--card2);display:grid;place-items:center;font-size:18px;flex:none}
+.next{outline:2px solid var(--acc)}
+/* exercise card in workout */
+.ex .top{display:flex;gap:12px;align-items:flex-start}
+.thumb{width:92px;height:66px;border-radius:10px;overflow:hidden;position:relative;flex:none;background:var(--card2);border:0;padding:0;display:grid;place-items:center;font-size:30px}
+.anim{position:relative;overflow:hidden}
+.anim img{width:100%;height:100%;object-fit:cover;display:block}
+.anim img+img{position:absolute;inset:0;animation:flip 2.4s infinite}
+@keyframes flip{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+.ex.done{opacity:.72}
+.ex .how{font-size:13px;color:var(--acc);margin-top:4px;background:none;border:0;padding:0}
+.prev{font-size:13px;color:var(--mut);margin:10px 0 4px}
+.sets{display:grid;grid-template-columns:28px 1fr 14px 1fr 48px;gap:6px 6px;align-items:center;margin-top:6px}
+.sets .h{font-size:12px;color:var(--mut);text-align:center}
+.sets .n{color:var(--mut);text-align:center;font-weight:600}
+.sets input{text-align:center;padding:10px 4px;font-size:17px}
+.sets .x{color:var(--mut);text-align:center}
+.ok{height:44px;border-radius:10px;border:1px solid var(--line);background:var(--card2);font-size:20px;color:var(--mut)}
+.ok.on{background:var(--ok);border-color:var(--ok);color:#fff}
+.rir{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--mut)}
+.rir button{border:1px solid var(--line);background:var(--card2);border-radius:8px;padding:5px 11px}
+.rir button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.tog{width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--card2);font-weight:600;margin-top:10px}
+.tog.on{background:var(--ok);border-color:var(--ok);color:#fff}
+/* rest timer */
+#rest{position:fixed;left:12px;right:12px;bottom:calc(70px + env(safe-area-inset-bottom));z-index:7;background:var(--acc);color:#fff;border-radius:14px;padding:10px 14px;display:none;align-items:center;gap:10px;box-shadow:0 6px 24px #0006}
+#rest.show{display:flex}
+#rest b{font-size:26px;font-variant-numeric:tabular-nums;min-width:70px}
+#rest.end{background:var(--ok)}
+#rest button{background:#ffffff2b;border:0;border-radius:8px;padding:8px 10px;color:#fff}
+/* modal */
+#modal{position:fixed;inset:0;z-index:20;background:#000a;display:none;align-items:flex-end;justify-content:center}
+#modal.show{display:flex}
+#modal .sheet{background:var(--bg);width:100%;max-width:720px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
+.sheet .hero{width:100%;aspect-ratio:3/2;border-radius:12px;background:var(--card2)}
+.sheet ol{padding-left:20px}.sheet ol li{margin:6px 0}
+.vid{position:relative;width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;background:#000;border:0;padding:0;display:block}
+.vid img{width:100%;height:100%;object-fit:cover;opacity:.75}
+.vid span{position:absolute;inset:0;display:grid;place-items:center;font-size:54px;color:#fff;text-shadow:0 2px 10px #000}
+.vid iframe{width:100%;height:100%;border:0}
+/* charts / tables */
+svg.ch{width:100%;height:auto;display:block}
+.ch .ln{fill:none;stroke:var(--acc);stroke-width:2.5}
+.ch .dt{fill:var(--acc)}
+.ch .gr{stroke:var(--line);stroke-width:1}
+.ch text{fill:var(--mut);font-size:11px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td,th{padding:7px 4px;border-top:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--mut);font-weight:500;font-size:12px}
+.bar{height:12px;background:var(--card2);border-radius:8px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;background:var(--ok)}
+.bar i.over{background:var(--bad)}
+pre.rep{white-space:pre-wrap;font:14px/1.45 ui-monospace,Consolas,monospace;background:var(--card2);padding:12px;border-radius:10px;margin:0}
+.feel{display:flex;justify-content:space-between;gap:6px}
+.feel button{flex:1;font-size:28px;background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:8px 0}
+.feel button.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 22%,var(--card2))}
+#toast{position:fixed;left:50%;top:16px;transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:9px 16px;border-radius:20px;z-index:30;font-size:14px;display:none}
+.hist li{cursor:pointer}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+</style>
+</head>
+<body>
+<header><h1>Mark<span>Fit</span></h1><span id="clock" class="mut sm"></span><button class="icon" data-a="settings" aria-label="Podešavanja">⚙</button></header>
+<main id="app"></main>
+<div id="rest"><b id="restT">1:30</b><div class="grow sm" id="restL">Pauza</div><button data-a="rest+">+15 s</button><button data-a="restx">Preskoči</button></div>
+<nav id="nav">
+  <button data-a="tab" data-t="train"><b>🏋</b>Trening</button>
+  <button data-a="tab" data-t="prog"><b>📈</b>Napredak</button>
+  <button data-a="tab" data-t="body"><b>⚖</b>Telo i hrana</button>
+  <button data-a="tab" data-t="rep"><b>📝</b>Izveštaj</button>
+</nav>
+<div id="modal"><div class="sheet" id="sheet"></div></div>
+<div id="toast"></div>
+<input type="file" id="imp" accept="application/json,.json" hidden>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
