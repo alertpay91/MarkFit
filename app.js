@@ -112,13 +112,14 @@ function exCard(s, it) {
   d.sets.forEach((x, i) => {
     const p = prevSets[i] || prevSets[prevSets.length - 1] || {};
     const phKg = pl != null ? fmtN(pl) : (p.kg || ''), phR = it[2] === 'max' ? 'max' : (it[2] || p.reps || '');
-    rows += `<div class="n">${i + 1}</div><input inputmode="decimal" placeholder="${esc(phKg)}" value="${esc(x.kg)}" data-f="set" data-e="${id}" data-i="${i}" data-k="kg">
+    rows += `<div class="n">${i + 1}</div><input inputmode="${e.bar ? 'tel' : 'decimal'}" placeholder="${esc(phKg)}" value="${esc(x.kg)}" data-f="set" data-e="${id}" data-i="${i}" data-k="kg">
       <div class="x">×</div><input inputmode="numeric" placeholder="${esc(phR)}" value="${esc(x.reps)}" data-f="set" data-e="${id}" data-i="${i}" data-k="reps">
       <button class="ok ${x.done ? 'on' : ''}" data-a="setok" data-e="${id}" data-i="${i}" aria-label="Serija gotova">✓</button>`;
   });
   const done = d.sets.length && d.sets.every(x => x.done);
   return `<div class="card ex ${done ? 'done' : ''}" id="c-${id}">${head}
     ${prev ? `<div class="prev">Prošli put (${fmtD(prev.start)}): ${esc(setsTxt(prevSets))}${prev.ex[id].rir != null ? ' · rezerva ' + rirTxt(prev.ex[id].rir) : ''}</div>` : '<div class="prev">Prvi put – izaberi kilažu tako da u zadnjoj seriji ostanu najviše 2 ponavljanja u rezervi.</div>'}
+    ${e.bar ? `<div class="xs mut">Kilaža ukupno, sa šipkom${id === 'upright' ? ' (EZ šipka obično 7–10 kg)' : ' (šipka obično 20 kg)'}. Možeš da kucaš i <b>2*20+20</b> (tegovi + šipka) – sama izračuna.</div>` : e.bw ? '' : '<div class="xs mut">Bučice: kilaža jedne bučice.</div>'}
     <div class="sets">${rows}</div>
     <div class="rir">Rezerva u zadnjoj seriji:${[0, 1, 2, 3].map(r => `<button class="${d.rir === r ? 'on' : ''}" data-a="rir" data-e="${id}" data-r="${r}">${r === 3 ? '3+' : r}</button>`).join('')}</div>
     ${d.rir === 3 ? '<div class="xs" style="color:var(--acc2);margin-top:6px">Ostalo ti je više od 2 – sledeći put stavi malo više kila.</div>' : ''}
@@ -384,7 +385,18 @@ document.addEventListener('input', e => {
 });
 document.addEventListener('change', e => {
   const t = e.target;
-  if (t.dataset.f === 'progex') { progEx = t.value; render(); }
+  if (t.dataset.f === 'set' && t.dataset.k === 'kg' && /[x×*+]/i.test(t.value)) {
+    // "2x20+20" -> 60
+    let tot = 0, ok = true;
+    for (const term of t.value.replace(/\s/g, '').split('+')) {
+      if (!term) continue;
+      const f = term.split(/[x×*]/i).map(num);
+      if (f.some(v => v == null)) { ok = false; break; }
+      tot += f.reduce((a, b) => a * b, 1);
+    }
+    if (ok) { t.value = fmtN(tot); cur().ex[t.dataset.e].sets[+t.dataset.i].kg = String(tot); save(); toast('= ' + fmtN(tot) + ' kg'); }
+  }
+  else if (t.dataset.f === 'progex') { progEx = t.value; render(); }
   else if (t.dataset.f === 'plan' && tab === 'train' && cur()) rerenderCard(t.dataset.e);
   else if (t.dataset.f === 'fd') { const f = S.food[t.value] || {}; $('#fk').value = f.kcal || ''; $('#fp').value = f.prot || ''; }
   else if (t.id === 'bd') { const b = S.body.find(x => x.d === t.value) || {}; $('#bkg').value = b.kg != null ? fmtN(b.kg) : ''; $('#bw').value = b.w != null ? fmtN(b.w) : ''; }
